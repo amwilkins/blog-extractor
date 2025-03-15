@@ -1,3 +1,4 @@
+import argparse
 import re
 import requests
 import ollama
@@ -5,7 +6,9 @@ import ollama
 from bs4 import BeautifulSoup
 import sqlite3
 
-import argparse
+from .database import *
+
+# from .database import init_db, get_cached_url, cache_url
 
 
 def ask_model(prompt):
@@ -54,31 +57,11 @@ def extract_blog_content(html, tag_info):
     return None
 
 
-def save_blog_to_db(title, content, url):
-    """Save the extracted blog content to an SQLite database."""
-    conn = sqlite3.connect("blog_data.sqlite")  # Local file-based database
-    cur = conn.cursor()
-
-    # use url to make table name
-    match = re.search(r"https?://(?:www\.)?([^/.]+)", url)
-    table_name = match.group(1) if match else None
-
-    create_table_query = f"""
-        CREATE TABLE IF NOT EXISTS {table_name} (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            content TEXT,
-            retrieval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """
-    cur.execute(create_table_query)
-
-    insert_query = f"INSERT INTO {table_name} (title, content) VALUES (?, ?)"
-    cur.execute(insert_query, (title, content))
-
-    conn.commit()
-    cur.close()
-    conn.close()
+# write actual checks here
+def check_for_success(data):
+    if data:
+        return True
+    return False
 
 
 def main(args):
@@ -94,9 +77,10 @@ def main(args):
         html = fetch_html(url)
         blog_tag = find_blog_post_tag(html)
         blog_data = extract_blog_content(html, blog_tag)
+        success = check_for_success(blog_data)
 
         if blog_data:
-            save_blog_to_db(blog_data["title"], blog_data["content"], url)
+            save_to_db(url, blog_data["title"], html, blog_data["content"], success)
             print("Blog post saved successfully!")
         else:
             print("No blog post found.")
