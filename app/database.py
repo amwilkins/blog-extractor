@@ -20,7 +20,6 @@ def save_to_db(url: str, title: str, html: str, content: str, success: bool):
             content TEXT,
             success BOOLEAN
             retrieval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
         )
     """
     cur.execute(create_table_query)

@@ -1,12 +1,10 @@
 import argparse
-import re
 import requests
 import ollama
 
 from bs4 import BeautifulSoup
-import sqlite3
 
-from .database import *
+from database import *
 
 # from .database import init_db, get_cached_url, cache_url
 
@@ -76,9 +74,12 @@ def main(args):
     try:
         html = fetch_html(url)
         blog_tag = find_blog_post_tag(html)
+        print(blog_tag)
         blog_data = extract_blog_content(html, blog_tag)
         success = check_for_success(blog_data)
 
+        print(blog_data)
+        print(success)
         if blog_data:
             save_to_db(url, blog_data["title"], html, blog_data["content"], success)
             print("Blog post saved successfully!")
