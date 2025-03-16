@@ -24,7 +24,7 @@ def save_to_db(url: str, title: str, html: str, content: str, success: bool):
     """
     cur.execute(create_table_query)
 
-    insert_query = f"INSERT INTO {table_name} (url, title, html, content, success, retrieval_date) VALUES (?, ?, ?, ?, ?, ?)"
+    insert_query = f"INSERT INTO {table_name} (url, title, html, content, success) VALUES (?, ?, ?, ?, ?)"
     cur.execute(insert_query, (url, title, html, content, success))
 
     conn.commit()
